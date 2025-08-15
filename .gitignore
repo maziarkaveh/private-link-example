@@ -1,0 +1,11 @@
+# Local test files with hardcoded tokens - DO NOT COMMIT
+privatePostgresql-test.yaml
+*-test.yaml
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
