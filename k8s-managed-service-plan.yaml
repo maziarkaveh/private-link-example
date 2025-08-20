@@ -1,0 +1,127 @@
+# yaml-language-server: $schema=https://api.omnistrate.cloud/2022-09-01-00/schema/service-spec-schema.json
+
+name: "K8s-Managed Private Link PostgreSQL"
+
+services:
+  # Main PostgreSQL service with Kubernetes-managed NLB
+  - name: postgres-with-k8s-nlb
+    helmChartConfiguration:
+      chartName: postgres-k8s-nlb
+      chartVersion: 0.1.0
+      chartRepoName: local
+      chartRepoURL: file://./helm/postgres-k8s-nlb
+      chartValues:
+        postgresql:
+          password: "{{ $var.postgresPassword }}"
+        storage:
+          size: "{{ $var.storageSize }}"
+        service:
+          connectAccountID: "{{ $var.connectAccountID }}"
+    compute:
+      instanceTypes:
+        - cloudProvider: aws
+          apiParam: instanceType
+    apiParameters:
+      - key: postgresPassword
+        name: "PostgreSQL Password"
+        type: String
+        required: true
+        defaultValue: "testpassword123"
+      - key: storageSize
+        name: "Storage Size"
+        type: String
+        defaultValue: "10Gi"
+        required: false
+      - key: instanceType
+        name: "Instance Type"
+        type: String
+        modifiable: true
+        required: false
+        export: true
+        defaultValue: "t3.medium"
+      - key: connectAccountID
+        name: "Connect Account IDs"
+        type: String
+        modifiable: true
+        required: false
+        export: true
+        defaultValue: ""
+
+  # VPC Endpoint Service discovery and creation
+  - name: vpc-endpoint-discovery
+    internal: true
+    dependsOn:
+      - postgres-with-k8s-nlb
+    terraformConfigurations:
+      configurationPerCloudProvider:
+        aws:
+          terraformPath: ./terraform/vpc-endpoint-discovery
+          gitConfiguration:
+            reference: refs/heads/k8s-managed-nlb-approach
+            repositoryUrl: https://github.com/omnistrate-community/private-link-example.git
+    apiParameters:
+      - key: connectAccountID
+        description: "Comma-separated AWS account IDs for VPC endpoint access"
+        name: "Connect Account IDs"
+        type: String
+        modifiable: true
+        required: false
+        export: true
+        defaultValue: ""
+        parameterDependencyMap:
+          postgres-with-k8s-nlb: connectAccountID
+      - key: serviceName
+        description: "Name of the Kubernetes service that created the NLB"
+        name: "Service Name"
+        type: String
+        defaultValue: "postgres-k8s-nlb"
+        required: true
+    requiredOutputs:
+      - key: "vpc_endpoint_service_name"
+        exported: true
+      - key: "vpc_endpoint_service_dns_name"
+        exported: true
+      - key: "nlb_dns_name"
+        exported: true
+      - key: "nlb_arn"
+        exported: false
+      - key: "allowed_account_ids"
+        exported: true
+
+  # Endpoint configuration service
+  - name: private-postgres-endpoint
+    dependsOn:
+      - postgres-with-k8s-nlb
+      - vpc-endpoint-discovery
+    passive: true
+    endpointConfiguration:
+      postgres:
+        host: "{{ $vpc-endpoint-discovery.out.vpc_endpoint_service_name }}"
+        ports:
+          - 5432
+        primary: true
+        networkingType: PRIVATE
+    apiParameters:
+      - key: postgresPassword
+        description: "Password for the PostgreSQL database"
+        name: "PostgreSQL Password"
+        type: String
+        required: true
+        sensitive: true
+        defaultValue: "testpassword123"
+        parameterDependencyMap:
+          postgres-with-k8s-nlb: postgresPassword
+      - key: connectAccountID
+        description: "Comma-separated AWS account IDs for VPC endpoint access"
+        name: "Connect Account IDs"
+        type: String
+        modifiable: true
+        required: false
+        export: true
+        defaultValue: ""
+        parameterDependencyMap:
+          postgres-with-k8s-nlb: connectAccountID
+          vpc-endpoint-discovery: connectAccountID
+
+clusterResourceNames:
+  - postgres-with-k8s-nlb

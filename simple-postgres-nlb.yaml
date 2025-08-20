@@ -1,0 +1,40 @@
+name: "K8s NLB PostgreSQL Test"
+ 
+deployment:
+  hostedDeployment:
+    AwsAccountId: "339713121445"
+    AwsBootstrapRoleAccountArn: "arn:aws:iam::339713121445:role/omnistrate-bootstrap-role"
+     
+services:
+  - name: postgres-nlb
+    helmChartConfiguration:
+      chartName: postgres-k8s-nlb
+      chartVersion: 0.1.0
+      chartRepoName: local
+      chartRepoURL: file://./helm/postgres-k8s-nlb
+      chartValues:
+        postgresql:
+          password: "{{ $var.postgresPassword }}"
+        storage:
+          size: "{{ $var.storageSize }}"
+    compute:
+      instanceTypes:
+        - cloudProvider: aws
+          name: t3.medium
+    apiParameters:
+      - key: postgresPassword
+        description: "Password for the PostgreSQL database"
+        name: "PostgreSQL Password"
+        type: String
+        required: true
+        sensitive: true
+        defaultValue: "testpassword123"
+      - key: storageSize
+        description: "Storage size for PostgreSQL data"
+        name: "Storage Size"
+        type: String
+        defaultValue: "10Gi"
+        required: false
+
+clusterResourceNames:
+  - postgres-nlb

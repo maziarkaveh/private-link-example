@@ -1,0 +1,38 @@
+*.idea
+.omnistrate.password
+
+# Terraform files
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+target/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/

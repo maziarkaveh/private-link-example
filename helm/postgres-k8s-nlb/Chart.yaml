@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postgres-k8s-nlb
+description: PostgreSQL with Kubernetes-managed Network Load Balancer for Private Link
+type: application
+version: 0.1.0
+appVersion: "15.0"
