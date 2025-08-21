@@ -22,14 +22,12 @@ locals {
   connectAccountIDs = compact(split(",", replace(local.connectAccountID, " ", "")))
 }
 
-# Discover the NLB created by Kubernetes Service with deterministic tags
+# Discover the NLB created by Kubernetes Service using AWS Load Balancer Controller tags
+# AWS Load Balancer Controller creates NLBs with specific tag patterns
 data "aws_lb" "k8s_created_nlb" {
   tags = {
-    # Tags that are deterministically set by the Kubernetes Service
-    "omnistrate-instance"   = local.instance_id
-    "omnistrate-service"    = "postgres-nlb"
-    "service.k8s.aws/stack" = "${local.instance_id}/postgres-nlb"
     "elbv2.k8s.aws/cluster" = "{{ $sys.deployment.kubernetesClusterID }}"
+    "service.k8s.aws/stack" = "{{ $sys.deployment.namespace }}/postgres-nlb"
   }
 }
 
