@@ -86,4 +86,4 @@ This example showcases **two different approaches** for implementing AWS Private
 
 ---
 
-**🎯 Ready to build your own private database service?** Start with the [complete documentation](docs/) or jump directly to [installation instructions](docs/installation.md)!
+**🎯 Ready to build your own private database service?** Start with the [complete documentation](docs/) or jump directly to [installation instructions](docs/installation.md)!# Build validation
