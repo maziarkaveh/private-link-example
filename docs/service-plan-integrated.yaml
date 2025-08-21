@@ -1,0 +1,45 @@
+# Simplified Service Plan - Terraform-Only Approach
+# This eliminates the need for separate Kustomize services
+
+services:
+  - name: vpc-endpoint-integrated
+    internal: true
+    terraformConfigurations:
+      configurationPerCloudProvider:
+        aws:
+          terraformPath: /terraform/vpc-endpoint-integrated
+    apiParameters:
+      - key: connectAccountID
+        description: "Comma-separated AWS account IDs for VPC endpoint access"
+        name: "Connect Account IDs"
+        type: String
+        modifiable: true
+        required: false
+        export: true
+        defaultValue: ""
+    requiredOutputs:
+      - key: "vpc_endpoint_service_name"
+        exported: true
+      - key: "vpc_endpoint_service_dns_name"
+        exported: true
+      - key: "allowed_account_ids"
+        exported: true
+      - key: "target_group_arn_datarobot_nginx"
+        exported: false
+      - key: "target_group_binding_name"
+        exported: false
+
+  # Main application service that depends on the integrated VPC endpoint
+  - name: datarobot-application
+    dependsOn:
+      - vpc-endpoint-integrated
+    helmConfiguration:
+      chartPath: /helm/datarobot
+    apiParameters:
+      # Application-specific parameters
+      - key: adminEmail
+        description: "Administrator email address"
+        name: "Admin Email"
+        type: String
+        required: true
+      # ... other application parameters

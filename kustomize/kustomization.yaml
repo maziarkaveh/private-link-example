@@ -1,0 +1,4 @@
+resources:
+  - postgres-nlb-service.yaml
+
+namespace: "{{ $sys.id }}"
