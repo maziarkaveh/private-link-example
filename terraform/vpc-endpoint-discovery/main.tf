@@ -22,12 +22,11 @@ locals {
   connectAccountIDs = compact(split(",", replace(local.connectAccountID, " ", "")))
 }
 
-# Discover the NLB created by Kubernetes Service using AWS Load Balancer Controller tags
-# AWS Load Balancer Controller creates NLBs with specific tag patterns
+# Discover the NLB created by Kubernetes Service
+# Use a more flexible approach since exact tag names may vary
 data "aws_lb" "k8s_created_nlb" {
   tags = {
     "elbv2.k8s.aws/cluster" = "{{ $sys.deployment.kubernetesClusterID }}"
-    "service.k8s.aws/stack" = "{{ $sys.deployment.namespace }}/postgres-nlb"
   }
 }
 
