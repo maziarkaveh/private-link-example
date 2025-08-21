@@ -24,7 +24,7 @@ services:
             - key: "nlb_arn"
               exported: true
         gcp:
-          terraformPath: /terraform
+          terraformPath: /terraform/vpc-endpoint-discovery
           gitConfiguration:
             reference: refs/heads/fresh-k8s-nlb
             repositoryUrl: https://github.com/maziarkaveh/private-link-example.git
