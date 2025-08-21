@@ -13,7 +13,7 @@ services:
         aws:
           terraformPath: /terraform/vpc-endpoint-discovery
           gitConfiguration:
-            reference: refs/heads/main
+            reference: refs/heads/fresh-k8s-nlb
             repositoryUrl: https://github.com/maziarkaveh/private-link-example.git
             
           requiredOutputs:
@@ -26,7 +26,7 @@ services:
         gcp:
           terraformPath: /terraform
           gitConfiguration:
-            reference: refs/heads/main
+            reference: refs/heads/fresh-k8s-nlb
             repositoryUrl: https://github.com/maziarkaveh/private-link-example.git
     apiParameters:
       - key: connectAccountID
@@ -155,7 +155,7 @@ services:
     kustomizeConfiguration:
       kustomizePath: /kustomize
       gitConfiguration:
-        reference: refs/heads/main
+        reference: refs/heads/fresh-k8s-nlb
         repositoryUrl: https://github.com/maziarkaveh/private-link-example.git
     apiParameters:
       - key: username
